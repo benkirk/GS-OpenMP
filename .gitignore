@@ -1,0 +1,8 @@
+# Ignoring output files
+._gs_openmp.c
+._gs_seq.c
+._Makefile
+gs_openmp
+gs_openmp.o
+gs_seq
+gs_seq.o
