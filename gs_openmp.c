@@ -71,34 +71,40 @@ void solver(float **mat, int n, int m, int max_cells) {
 
 	int done = 0
 	int cnt_iter = 0;
-
-	const int mat_dim = n*n;
-	const int max_pos = (n*m) - (2*n);
+	int mat_dim = n * n;
 
 
-  	while (!done && (cnt_iter < MAX_ITER)) {
-  		diff = 0;
+	while (!done && (cnt_iter < MAX_ITER)) {
+		diff = 0;
 
-  		// Neither the first row nor the last row are solved
-  		// (that's why it starts at "n" and it goes up to "num_elems - 2n")
-		#pragma omp parallel for schedule(static, max_cells) private(i, temp) reduction(+:diff) 
-  		for (int i = n; i < max_pos; i++) {
+		// Neither the first row nor the last row are solved
+		// (that's why both 'i' and 'j' start at 1 and go up to '[nm]-1')
+		#pragma omp parallel for schedule(static, max_cells) collapse(2) reduction(+:diff) 
+		for (int i = 1; i < n-1; i++) {
+			for (int j = 1; j < m-1; j++) {
 
-  			// Additionally, neither the first nor last column are solved
-  			// (that's why the first and last positions of "rows" are skipped)
-  			if ((i % n == 0) || (i+1 % n == 0)) {
-				continue;
+				const int pos = (i * m) + j;
+
+				/*
+				const int pos_up = pos - n;
+				const int pos_do = pos + n;
+				const int pos_le = pos - 1;
+				const int pos_ri = pos + 1;
+				*/
+
+				const float temp = (*mat)[pos];
+
+				(*mat)[pos] = 
+					0.2 * (
+						(*mat)[pos]
+						+ (*mat)[pos - 1]
+						+ (*mat)[pos - n]
+						+ (*mat)[pos + 1]
+						+ (*mat)[pos + n]
+					);
+				diff += abs((*mat)[pos] - temp);
 			}
-
-  			const int pos_up = i - n;
-  			const int pos_do = i + n;
-  			const int pos_le = i - 1;
-  			const int pos_ri = i + 1;
-
-  			temp = (*mat)[i];
-			(*mat)[i] = 0.2 * ((*mat)[i] + (*mat)[pos_le] + (*mat)[pos_up] + (*mat)[pos_ri] + (*mat)[pos_do]);
-			diff += abs((*mat)[i] - temp);
-      	}
+		}
 
 		#pragma omp barrier	// TODO: Necessary?
 
@@ -117,9 +123,9 @@ void solver(float **mat, int n, int m, int max_cells) {
 int main(int argc, char *argv[]) {
 
 	if (argc < 2) {
-    	printf("Call this program with two parameters: matrix_size communication \n");
-    	printf("\t matrix_size: Add 2 to a power of 2 (e.g. : 18, 1026)\n");
-    	exit(1);
+		printf("Call this program with two parameters: matrix_size communication \n");
+		printf("\t matrix_size: Add 2 to a power of 2 (e.g. : 18, 1026)\n");
+		exit(1);
 	}
 
 	n = atoi(argv[1]);
@@ -132,7 +138,7 @@ int main(int argc, char *argv[]) {
 
 	// Calculate how many cells as maximum per thread
 	int max_rows = get_max_rows(np, n);
-	int max_cells = max_rows * n;
+	int max_cells = max_rows * (n-2);
 	
 
 	// Initial operation time
