@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <omp.h>
+#include <time.h>
 
 #define MAX_ITER 100
 
@@ -21,7 +22,7 @@ float rand_float(int max) {
 
 
 
-// Calculates how many rows are given, as maximum, to each node
+// Calculates how many rows are given, as maximum, to each thread
 int get_max_rows(int num_nodes, int n) {
 	return (int)(ceil((n-2) / num_nodes) + 2);
 }
@@ -29,36 +30,8 @@ int get_max_rows(int num_nodes, int n) {
 
 
 
-// Gets the position from which elements are gonna be sent / received
-int get_node_offset(int node_id, int n, int max_rows) {
-	return node_id * n * (max_rows-2);
-}
-
-
-
-
-// Calculates how many elements are going to a given node
-int get_node_elems(int node_id, int n, int max_rows) {
-
-	int node_offset = get_node_offset(node_id, n, max_rows);
-	int node_elems = max_rows * n;
-
-	// Case in which the node receive the full set of elements
-	if (node_offset + node_elems <= (n*n)) {
-		return node_elems;
-	}
-
-	// Case of the last node, which could get less elements
-	else {
-		return (n*n) - node_offset;
-	}
-}
-
-
-
-
-// Allocate 2D matrix in the master node
-void allocate_root_matrix(float **mat, int n, int m){
+// Allocate 2D matrix with random floats
+void allocate_matrix(float **mat, int n, int m){
 
 	*mat = (float *) malloc(n * m * sizeof(float));
 	for (int i = 0; i < (n*m); i++) {
@@ -69,34 +42,50 @@ void allocate_root_matrix(float **mat, int n, int m){
 
 
 
-// Allocate 2D matrix in the slaves nodes
-void allocate_node_matrix(float **mat, int num_elems) {
-	*mat = (float *) malloc(num_elems * sizeof(float));
+// Write the time results into a CSV file
+void write_to_file(int n, int num_blocks, int num_threads, float total_time, float exec_time) {
+
+	FILE *f;
+	char* file_name = "results.csv";
+
+	if (access(file_name, F_OK) == -1) {
+ 		f = fopen(file_name, "a");
+		fprintf(f, "Matrix size;Blocks;Threads per block;Total time;Operations time;\n");
+	}
+	else {
+		f = fopen(file_name, "a");
+	}
+
+	fprintf(f, "%d;%d;%d;%f;%f;\n", n, num_blocks, num_threads, total_time, exec_time);
+	fclose(f);
 }
 
 
 
 
-// Solves as many elements as specified in "num_elems"
-void solver(float **mat, int n, int num_elems) {
+// Solves the matrix splitting the rows into different threads
+void solver(float **mat, int n, int m) {
 
-	float diff = 0, temp;
-	int done = 0, cnt_iter = 0, myrank;
+	float temp;
+	float diff = 0;
 
-	// Pensar n*n
-	int a = n*n;
+	int done = 0
+	int cnt_iter = 0;
+
+	const int mat_dim = n*n;
+	const int max_cell = (n*m) - (2*n);
+
 
   	while (!done && (cnt_iter < MAX_ITER)) {
   		diff = 0;
 
   		// Neither the first row nor the last row are solved
   		// (that's why it starts at "n" and it goes up to "num_elems - 2n")
-		#pragma omp parallel for private(i, temp) reduction (+:diff) //elegir static | guided | dynamic 
-  		for (int i = n; i < num_elems - (2*n); i++) {
+		#pragma omp parallel for private(i, temp) reduction (+:diff) 				// TODO: Choose static | guided | dynamic 
+  		for (int i = n; i < max_cell; i++) {
 
   			// Additionally, neither the first nor last column are solved
   			// (that's why the first and last positions of "rows" are skipped)
-			// TODO: Kill it with fire
   			if ((i % n == 0) || (i+1 % n == 0)) {
 				continue;
 			}
@@ -109,23 +98,17 @@ void solver(float **mat, int n, int num_elems) {
   			temp = (*mat)[i];
 			(*mat)[i] = 0.2 * ((*mat)[i] + (*mat)[pos_le] + (*mat)[pos_up] + (*mat)[pos_ri] + (*mat)[pos_do]);
 			diff += abs((*mat)[i] - temp);
-      		}
+      	}
 
-		#pragma omp barrier
-		if (diff/a < TOL) {	// Pensar
+		#pragma omp barrier															// TODO: Necessary?
+
+		if (diff/mat_dim < TOL) {
 			done = 1;
 		}
 		cnt_iter ++;
 	}
 
-
-	//MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	if (done) {
-		printf("Node %d: Solver converged after %d iterations\n", myrank, cnt_iter);
-	}
-	else {
-		printf("Node %d: Solver not converged after %d iterations\n", myrank, cnt_iter);
-	}
+	printf("Solver converged after %d iterations\n", cnt_iter);
 }
 
 
@@ -133,152 +116,44 @@ void solver(float **mat, int n, int num_elems) {
 
 int main(int argc, char *argv[]) {
 
-	int np, myrank, n, communication, i;
-	float *a, *b;
-
-	//MPI_Init(&argc, &argv);
-	//MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	//MPI_Comm_size(MPI_COMM_WORLD, &np);
-
 	if (argc < 2) {
-    		printf("Call this program with two parameters: matrix_size communication \n");
-    		printf("\t matrix_size: Add 2 to a power of 2 (e.g. : 18, 1026)\n");
-    
-    		exit(1);
+    	printf("Call this program with two parameters: matrix_size communication \n");
+    	printf("\t matrix_size: Add 2 to a power of 2 (e.g. : 18, 1026)\n");				// TODO: Put more arguments
+    	exit(1);
 	}
-
 
 	n = atoi(argv[1]);
-	communication =	atoi(argv[2]);
 
-	if (myrank == 0) {
-		printf("Matrix size = %d communication = %d\n", n, communication);
-	}
+	// Start recording the time
+	clock_t i_total_t = clock();
 
+	float *mat;
+	alloc_matrix(&mat, n, n);
 
-	// Calculate common relevant values for each node
+	// Calculate how many cells as maximum per thread
 	int max_rows = get_max_rows(np, n);
+	int max_cells = max_rows * n;
+	
 
-	// Array of containing the offset and number of elements per node
-	int nodes_offsets[np];
-	int nodes_elems[np];
-	for (i = 0; i < np; i++) {
-		nodes_offsets[i] = get_node_offset(i, n, max_rows);
-		nodes_elems[i] = get_node_elems(i, n, max_rows);
-	}
+	// Initial operation time
+	clock_t i_exec_t = clock();
 
-	// Variable to store the node local number of elements
-	int num_elems = nodes_elems[myrank];
+	// Parallelized solver
+	solver(&a, n, n);
 
-
-	double tscom1 = MPI_Wtime();
-
-	// TODO: REVISAR
-	switch(communication) {
-		case 0: {
-			if (myrank == 0) {
-
-				// Allocating memory for the whole matrix
-				allocate_root_matrix(&a, n, n);
-
-				// Master sends chuncks to every other node
-				for (i = 1; i < np; i++) {
-					int i_offset = nodes_offsets[i];
-					int i_elems = nodes_elems[i];
-					//MPI_Send(&a[i_offset], i_elems, MPI_FLOAT, i, 0, MPI_COMM_WORLD);
-				}
-			}
-			else {
-
-				// Allocating the exact memory to the rows receiving
-				allocate_node_matrix(&a, num_elems);
-				//MPI_Status status;
-
-				// Receiving the data from the master node
-				//MPI_Recv(a, num_elems, MPI_FLOAT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			}
-			break;
-		}
-
-	}
-
-	// TODO: Cambiar a libreria de tiempo
-	double tfcom1 = MPI_Wtime();
-	double tsop = MPI_Wtime();
-
-	// --------- SOLVER ---------
-	if (communication == 0) {
-		solver(&a, n, num_elems);
-	}
-	else {
-		solver(&b, n, num_elems);
-	}
-
-	double tfop = MPI_Wtime();
-	double tscom2 = MPI_Wtime();
+	// Final operation time
+	clock_t f_exec_t = clock();
 
 
-	switch(communication) {
-		case 0: {
-			if (myrank == 0) {
+	free(mat);
 
-				MPI_Status status;
+	// Finish recording the time
+	clock_t f_total_t = clock();
 
-				// Master sends chuncks to every other node
-				for (i = 1; i < np; i++) {
-					int i_offset = nodes_offsets[i] + n; 		// +n to skip cortex values
-					int i_elems = nodes_elems[i] - (2*n);		// -2n to skip cortex values
-					MPI_Recv(&a[i_offset], i_elems, MPI_FLOAT, i, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-				}
-			}
-			else {
-				int solved_offset = n;							// Start at n to skip cortex values
-				int solved_elems = num_elems - (2*n);			// Reach num_elems-2n to skip cortex values
+	float total_time = (float)(f_total_t - i_total_t) / CLOCKS_PER_SEC;
+	float exec_time = (float)(f_exec_t - i_exec_t) / CLOCKS_PER_SEC;
+	printf("Total time: %f\n", total_time);
+	printf("Operations time: %f\n", exec_time);
 
-				// Compute num_elems sin la corteza
-				MPI_Send(&a[solved_offset], solved_elems, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
-			}
-
-			break;
-		}
-		
-		case 1: {
-
-			// Collective communication for gathering the matrix
-			// Info: http://www.mpich.org/static/docs/v3.2.1/www/www3/MPI_Gatherv.html
-			MPI_Gatherv(b, num_elems, MPI_FLOAT, a, nodes_elems, nodes_offsets, MPI_FLOAT, 0, MPI_COMM_WORLD);
-			break;
-		}
-	}
-
-	double tfcom2 = MPI_Wtime();
-
-
-	if (myrank == 0) {
-		float com_time = (tfcom1-tscom1) + (tfcom2-tscom2);
-		float ops_time = tfop - tsop;
-		float total_time = com_time + ops_time;
-		// Quitar /printefes/
-		printf("Communication time: %f\n", com_time);
-		printf("Operations time: %f\n", ops_time);
-		printf("Total time: %f\n", total_time);
-
-		FILE *f;
-		if (access("results.csv", F_OK) == -1) {
- 			f = fopen("results.csv", "a");
-			fprintf(f, "Communication;Nodes;Size;Communication-time;Operations-time;Total-time;\n");
-		}
-		else {
-			f = fopen("results.csv", "a");
-		}
-
-		fprintf(f, "%d;%d;%d;%f;%f;%f;\n", communication, np, n, com_time, ops_time, total_time);
-		fclose(f);
-	}
-
-
-	free(a);
-	free(b);
-
-	return 0;
+	write_to_file(n, num_blocks, threads_per_block, total_time, exec_time);			// TODO: Change arguments
 }
