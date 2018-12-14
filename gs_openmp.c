@@ -23,15 +23,15 @@ float rand_float(int max) {
 
 
 // Calculates how many rows are given, as maximum, to each thread
-int get_max_rows(int num_nodes, int n) {
-	return (int)(ceil((n-2) / num_nodes) + 2);
+int get_max_rows(int num_threads, int n) {
+	return (int)(ceil((n-2) / num_threads) + 2);
 }
 
 
 
 
 // Allocate 2D matrix with random floats
-void allocate_matrix(float **mat, int n, int m){
+void alloc_matrix(float **mat, int n, int m){
 
 	*mat = (float *) malloc(n * m * sizeof(float));
 	for (int i = 0; i < (n*m); i++) {
@@ -64,22 +64,20 @@ void write_to_file(int n, char *schedule_type, float total_time, float exec_time
 
 
 // Solves the matrix splitting the rows into different threads
-void solver(float **mat, int n, int m, int max_cells) {
+void solver(float **mat, int n, int m, int num_ths, int max_cells_per_th) {
 
-	float temp;
-	float diff = 0;
+	float diff;
 
-	int done = 0
+	int done = 0;
 	int cnt_iter = 0;
 	int mat_dim = n * n;
-
 
 	while (!done && (cnt_iter < MAX_ITER)) {
 		diff = 0;
 
 		// Neither the first row nor the last row are solved
 		// (that's why both 'i' and 'j' start at 1 and go up to '[nm]-1')
-		#pragma omp parallel for schedule(static, max_cells) collapse(2) reduction(+:diff) 
+		#pragma omp parallel for num_threads(num_ths) schedule(static, max_cells_per_th) collapse(2) reduction(+:diff)
 		for (int i = 1; i < n-1; i++) {
 			for (int j = 1; j < m-1; j++) {
 
@@ -128,7 +126,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	n = atoi(argv[1]);
+	int n = atoi(argv[1]);
 
 	// Start recording the time
 	clock_t i_total_t = clock();
@@ -137,15 +135,16 @@ int main(int argc, char *argv[]) {
 	alloc_matrix(&mat, n, n);
 
 	// Calculate how many cells as maximum per thread
-	int max_rows = get_max_rows(np, n);
+	int max_threads = omp_get_max_threads();
+	int max_rows = get_max_rows(max_threads, n);
 	int max_cells = max_rows * (n-2);
-	
+
 
 	// Initial operation time
 	clock_t i_exec_t = clock();
 
 	// Parallelized solver
-	solver(&a, n, n, max_cells);
+	solver(&mat, n, n, max_threads, max_cells);
 
 	// Final operation time
 	clock_t f_exec_t = clock();
