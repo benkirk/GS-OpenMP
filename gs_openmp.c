@@ -79,7 +79,7 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 		// Neither the first row nor the last row are solved
 		// (that's why both 'i' and 'j' start at 1 and go up to '[nm]-1')
 		#pragma omp parallel for num_threads(num_ths) schedule(static, max_cells_per_th) collapse(2) reduction(+:diff)
-		for (int i = 1; i < n-1; i++) {			
+		for (int i = 1; i < n-1; i++) {
 			for (int j = 1; j < m-1; j++) {
 
 				const int pos = (i * m) + j;
@@ -93,6 +93,7 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 						+ (*mat)[pos + 1]
 						+ (*mat)[pos + n]
 					);
+
 				diff += abs((*mat)[pos] - temp);
 			}
 		}
@@ -127,7 +128,7 @@ int main(int argc, char *argv[]) {
 
 	// Calculate how many cells as maximum per thread
 	const int max_threads = omp_get_max_threads();
-	const int max_rows = (int)(ceil((n-2) / max_threads) + 2);
+	const int max_rows = get_max_rows(max_threads, n);
 	const int max_cells = max_rows * (n-2);
 
 
