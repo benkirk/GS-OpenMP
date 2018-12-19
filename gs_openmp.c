@@ -83,14 +83,6 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 			for (int j = 1; j < m-1; j++) {
 
 				const int pos = (i * m) + j;
-
-				/*
-				const int pos_up = pos - n;
-				const int pos_do = pos + n;
-				const int pos_le = pos - 1;
-				const int pos_ri = pos + 1;
-				*/
-
 				const float temp = (*mat)[pos];
 
 				(*mat)[pos] = 
@@ -104,8 +96,6 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 				diff += abs((*mat)[pos] - temp);
 			}
 		}
-
-		#pragma omp barrier	// TODO: Necessary?
 
 		if (diff/mat_dim < TOL) {
 			done = 1;
@@ -137,7 +127,7 @@ int main(int argc, char *argv[]) {
 
 	// Calculate how many cells as maximum per thread
 	const int max_threads = omp_get_max_threads();
-	const int max_rows = get_max_rows(max_threads, n);
+	const int max_rows = (int)(ceil((n-2) / max_threads) + 2);
 	const int max_cells = max_rows * (n-2);
 
 

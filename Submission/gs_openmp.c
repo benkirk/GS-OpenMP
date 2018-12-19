@@ -14,42 +14,33 @@
 
 
 // Generate a random float number with the maximum value of max
-float rand_float(int max) {
+float rand_float(const int max) {
 	return ((float)rand() / (float)(RAND_MAX)) * max;
 }
 
 
 
-
-// Calculates how many rows are given, as maximum, to each thread
-int get_max_rows(int num_threads, int n) {
-	return (int)(ceil((n-2) / num_threads) + 2);
-}
-
-
-
-
 // Allocate 2D matrix with random floats
-void alloc_matrix(float **mat, int n, int m){
+void alloc_matrix(float **mat, const int n, const int m) {
 
 	*mat = (float *) malloc(n * m * sizeof(float));
-	for (int i = 0; i < (n*m); i++) {
+
+	const int size = n*m;
+	for (int i = 0; i < size; i++) {
 		(*mat)[i] = rand_float(MAX);
 	}
 }
 
 
 
-
-
 // Solves the matrix splitting the rows into different threads
-void solver(float **mat, int n, int m, int num_ths, int max_cells_per_th) {
+void solver(float **mat, const int n, const int m, const int num_ths, const int max_cells_per_th) {
 
 	float diff;
 
 	int done = 0;
 	int cnt_iter = 0;
-	int mat_dim = n * n;
+	const int mat_dim = n * n;
 
 	while (!done && (cnt_iter < MAX_ITER)) {
 		diff = 0;
@@ -61,7 +52,6 @@ void solver(float **mat, int n, int m, int num_ths, int max_cells_per_th) {
 			for (int j = 1; j < m-1; j++) {
 
 				const int pos = (i * m) + j;
-
 				const float temp = (*mat)[pos];
 
 				(*mat)[pos] = 
@@ -75,8 +65,6 @@ void solver(float **mat, int n, int m, int num_ths, int max_cells_per_th) {
 				diff += abs((*mat)[pos] - temp);
 			}
 		}
-
-		#pragma omp barrier	// TODO: Necessary?
 
 		if (diff/mat_dim < TOL) {
 			done = 1;
@@ -94,18 +82,22 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	int n = atoi(argv[1]);
+	const int n = atoi(argv[1]);
+
 
 	float *mat;
 	alloc_matrix(&mat, n, n);
 
 	// Calculate how many cells as maximum per thread
-	int max_threads = omp_get_max_threads();
-	int max_rows = get_max_rows(max_threads, n);
-	int max_cells = max_rows * (n-2);
+	const int max_threads = omp_get_max_threads();
+	const int max_rows = (int)(ceil((n-2) / max_threads) + 2);
+	const int max_cells = max_rows * (n-2);
+
 
 	// Parallelized solver
 	solver(&mat, n, n, max_threads, max_cells);
 
+
 	free(mat);
+
 }
