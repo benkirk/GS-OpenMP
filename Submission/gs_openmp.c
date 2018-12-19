@@ -55,7 +55,7 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 				const float temp = (*mat)[pos];
 
 				(*mat)[pos] = 
-					0.2 * (
+					0.2f * (
 						(*mat)[pos]
 						+ (*mat)[pos - 1]
 						+ (*mat)[pos - n]
