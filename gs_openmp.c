@@ -14,7 +14,7 @@
 
 
 // Generate a random float number with the maximum value of max
-float rand_float(int max) {
+float rand_float(const int max) {
 	return ((float)rand() / (float)(RAND_MAX)) * max;
 }
 
@@ -22,7 +22,7 @@ float rand_float(int max) {
 
 
 // Calculates how many rows are given, as maximum, to each thread
-int get_max_rows(int num_threads, int n) {
+int get_max_rows(const int num_threads, const int n) {
 	return (int)(ceil((n-2) / num_threads) + 2);
 }
 
@@ -30,10 +30,12 @@ int get_max_rows(int num_threads, int n) {
 
 
 // Allocate 2D matrix with random floats
-void alloc_matrix(float **mat, int n, int m){
+void alloc_matrix(float **mat, const int n, const int m) {
 
 	*mat = (float *) malloc(n * m * sizeof(float));
-	for (int i = 0; i < (n*m); i++) {
+
+	const int size = n*m;
+	for (int i = 0; i < size; i++) {
 		(*mat)[i] = rand_float(MAX);
 	}
 }
@@ -63,13 +65,13 @@ void write_to_file(int n, char *schedule_type, float total_time, float exec_time
 
 
 // Solves the matrix splitting the rows into different threads
-void solver(float **mat, int n, int m, int num_ths, int max_cells_per_th) {
+void solver(float **mat, const int n, const int m, const int num_ths, const int max_cells_per_th) {
 
 	float diff;
 
 	int done = 0;
 	int cnt_iter = 0;
-	int mat_dim = n * n;
+	const int mat_dim = n * n;
 
 	while (!done && (cnt_iter < MAX_ITER)) {
 		diff = 0;
@@ -125,37 +127,37 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	int n = atoi(argv[1]);
+	const int n = atoi(argv[1]);
 
 	// Start recording the time
-	double i_total_t = omp_get_wtime();
+	const double i_total_t = omp_get_wtime();
 
 	float *mat;
 	alloc_matrix(&mat, n, n);
 
 	// Calculate how many cells as maximum per thread
-	int max_threads = omp_get_max_threads();
-	int max_rows = get_max_rows(max_threads, n);
-	int max_cells = max_rows * (n-2);
+	const int max_threads = omp_get_max_threads();
+	const int max_rows = get_max_rows(max_threads, n);
+	const int max_cells = max_rows * (n-2);
 
 
 	// Initial operation time
-	double i_exec_t = omp_get_wtime();
+	const double i_exec_t = omp_get_wtime();
 
 	// Parallelized solver
 	solver(&mat, n, n, max_threads, max_cells);
 
 	// Final operation time
-	double f_exec_t = omp_get_wtime();
+	const double f_exec_t = omp_get_wtime();
 
 
 	free(mat);
 
 	// Finish recording the time
-	double f_total_t = omp_get_wtime();
+	const double f_total_t = omp_get_wtime();
 
-	double total_time = f_total_t - i_total_t;
-	double exec_time = f_exec_t - i_exec_t;
+	const double total_time = f_total_t - i_total_t;
+	const double exec_time = f_exec_t - i_exec_t;
 	printf("Total time: %lf\n", total_time);
 	printf("Operations time: %lf\n", exec_time);
 
