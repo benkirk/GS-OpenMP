@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <math.h>
 #include <omp.h>
-#include <time.h>
 
 #define MAX_ITER 100
 
@@ -129,7 +128,7 @@ int main(int argc, char *argv[]) {
 	int n = atoi(argv[1]);
 
 	// Start recording the time
-	clock_t i_total_t = clock();
+	double i_total_t = omp_get_wtime();
 
 	float *mat;
 	alloc_matrix(&mat, n, n);
@@ -141,24 +140,24 @@ int main(int argc, char *argv[]) {
 
 
 	// Initial operation time
-	clock_t i_exec_t = clock();
+	double i_exec_t = omp_get_wtime();
 
 	// Parallelized solver
 	solver(&mat, n, n, max_threads, max_cells);
 
 	// Final operation time
-	clock_t f_exec_t = clock();
+	double f_exec_t = omp_get_wtime();
 
 
 	free(mat);
 
 	// Finish recording the time
-	clock_t f_total_t = clock();
+	double f_total_t = omp_get_wtime();
 
-	float total_time = (float)(f_total_t - i_total_t) / CLOCKS_PER_SEC;
-	float exec_time = (float)(f_exec_t - i_exec_t) / CLOCKS_PER_SEC;
-	printf("Total time: %f\n", total_time);
-	printf("Operations time: %f\n", exec_time);
+	double total_time = f_total_t - i_total_t;
+	double exec_time = f_exec_t - i_exec_t;
+	printf("Total time: %lf\n", total_time);
+	printf("Operations time: %lf\n", exec_time);
 
 	write_to_file(n, "static", total_time, exec_time);
 }

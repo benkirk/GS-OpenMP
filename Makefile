@@ -15,7 +15,7 @@ PRGS	= gs_seq gs_openmp
 all: $(PRGS)
 
 %.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $*.c $(INCLUDE) -o $@
+	$(CC) $(CFLAGS) -c $*.c $(INCLUDE) -o $@ -fopenmp
 
 $(PRGS): $(OBJS)
 $(PRGS): 
