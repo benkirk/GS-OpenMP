@@ -1,4 +1,4 @@
-CC	= gcc -std=c99
+CC	= gcc -std=c99 -O3
 LD	= $(CC)
 
 CFLAGS	= -g -Wall

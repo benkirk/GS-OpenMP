@@ -104,7 +104,7 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 		cnt_iter ++;
 	}
 
-	printf("Solver converged after %d iterations\n", cnt_iter);
+	printf("Converged in %d iterations\n", cnt_iter);
 }
 
 
@@ -118,6 +118,9 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+
+        // seed the random number generator, consistently
+        srand(42);
 
 	const int n = atoi(argv[1]);
 
