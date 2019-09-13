@@ -1,16 +1,16 @@
-CC	= gcc
+CC	= gcc -std=c99
 LD	= $(CC)
 
-CFLAGS	= -g -Wall 
-CFLAGS	+= -I. 
-LDFLAGS	= 
+CFLAGS	= -g -Wall
+CFLAGS	+= -I.
+LDFLAGS	=
 
-OBJS	= 
+OBJS	=
 LIBS    = -lm -fopenmp
 
 SRCS	= $(patsubst %.o,%.c,$(OBJS))
 
-PRGS	= gs_seq gs_openmp 
+PRGS	= gs_seq gs_openmp
 
 all: $(PRGS)
 
@@ -18,10 +18,9 @@ all: $(PRGS)
 	$(CC) $(CFLAGS) -c $*.c $(INCLUDE) -o $@ -fopenmp
 
 $(PRGS): $(OBJS)
-$(PRGS): 
+$(PRGS):
 $(PRGS): % : %.o
 	$(CC) $(CFLAGS) -o $@ $< $(OBJS) $(LDFLAGS) $(LIBS)
 
 clean:
 	-rm -f *.o  *~ $(PRGS)
-
