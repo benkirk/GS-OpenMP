@@ -1,11 +1,7 @@
 # Ignoring output files
-._gs_openmp.c
-._gs_seq.c
-._Makefile
+*.o
 gs_openmp
-gs_openmp.o
 gs_seq
-gs_seq.o
 
 # BSK stuff
 *~
@@ -19,3 +15,10 @@ build-aux/
 configure
 openmp_config.h.in
 results.csv
+.deps/
+Makefile
+config.log
+config.status
+*.o
+openmp_config.h
+stamp-h1

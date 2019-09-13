@@ -13,7 +13,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects color-tests 1.11])
 # use silent rules - automake 1.11
-#AM_SILENT_RULES(yes)
+AM_SILENT_RULES(yes)
 
 # Checks for programs.
 AC_PROG_CXX
@@ -28,13 +28,11 @@ AC_ARG_VAR(PYTHONPATH, compile-time PYTHONPATH (e.g. for mpi4py))
 # Default to C++, and get OpenMP flags for all used languages
 AC_LANG(C++)
 AX_OPENMP
+AC_SUBST(OPENMP_CXXFLAGS)
 AC_LANG_PUSH([C])
 AX_OPENMP
 AC_SUBST(OPENMP_CFLAGS)
 AC_LANG_POP([C])
-AC_LANG_PUSH([Fortran])
-AX_OPENMP
-AC_LANG_POP([Fortran])
 
 
 # Checks for MPI features
