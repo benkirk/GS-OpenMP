@@ -4,7 +4,7 @@
 #include <math.h>
 #include <omp.h>
 
-#define MAX_ITER 100
+#define MAX_ITER 1000
 
 // Maximum value of the matrix element
 #define MAX 100
@@ -85,7 +85,7 @@ void solver(float **mat, const int n, const int m, const int num_ths, const int 
 				const int pos = (i * m) + j;
 				const float temp = (*mat)[pos];
 
-				(*mat)[pos] = 
+				(*mat)[pos] =
 					0.2f * (
 						(*mat)[pos]
 						+ (*mat)[pos - 1]
@@ -118,6 +118,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+
 	const int n = atoi(argv[1]);
 
 	// Start recording the time
@@ -127,10 +128,14 @@ int main(int argc, char *argv[]) {
 	alloc_matrix(&mat, n, n);
 
 	// Calculate how many cells as maximum per thread
-	const int max_threads = omp_get_max_threads();
+	int max_threads = omp_get_max_threads();
+        if (argc == 3) {
+          max_threads = atoi(argv[2]);
+        }
+        printf("max_threads: %d\n", max_threads);
+
 	const int max_rows = get_max_rows(max_threads, n);
 	const int max_cells = max_rows * (n-2);
-
 
 	// Initial operation time
 	const double i_exec_t = omp_get_wtime();
