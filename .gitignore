@@ -6,3 +6,16 @@ gs_openmp
 gs_openmp.o
 gs_seq
 gs_seq.o
+
+# BSK stuff
+*~
+*.pdf
+COPYING
+INSTALL
+Makefile.in
+aclocal.m4
+autom4te.cache/
+build-aux/
+configure
+openmp_config.h.in
+results.csv

@@ -120,21 +120,31 @@ if __name__ == "__main__":
 
         print('*'*80)
         print('*'*80)
-        plt.plot(n_threads, total_time)
-        plt.plot(n_threads, ops_time)
-        plt.xlabel('# threads')
-        plt.ylabel('Runtime (sec)')
-
 
         for s in total_time: sp1.append(total_time[0]/s)
         for s in ops_time:   sp2.append(ops_time[0]/s)
 
+        plt.clf()
+        plt.title('Gauss-Seidel OpenMP Solve, N={} Matrix'.format(matsize))
+        plt.grid(True,axis='both',color='grey',linestyle=':', linewidth=0.5)
+        plt.plot(n_threads, n_threads, linewidth=3, color='black')
+        plt.plot(n_threads, sp1, '--', linewidth=2, color='red')
+        plt.plot(n_threads, sp2,       linewidth=3, color='red')
+        plt.xlabel('# threads')
+        plt.ylabel('Speedup', color='red')
+        plt.xlim([0, mt])
+        plt.ylim([0, mt])
+
+
         ax_y2 = plt.twinx()
-        ax_y2.plot(n_threads, n_threads)
-        ax_y2.plot(n_threads, sp1)
-        ax_y2.plot(n_threads, sp2)
-        plt.ylabel('Speedup')
-        plt.show()
+        ax_y2.plot(n_threads, total_time, '--', linewidth=1, color='grey')
+        ax_y2.plot(n_threads, ops_time,         linewidth=2, color='grey')
+        ax_y2.set_ylabel('Runtime (sec)', color='grey')
+        ax_y2.set_yscale('log')
+        ax_y2.set_ylim([None, None])
+
+        plt.savefig('speedup_N{}.pdf'.format(matsize))
+        #plt.show()
 
 
     print('Bye!')
