@@ -1,20 +1,22 @@
 #!/bin/bash
 
-iteraciones=(1 2 3 4 5)
-matrix_sizes=(2050 4098 8194)
 
-for matrix_size in "${matrix_sizes[@]}"
-do
-    echo "-------------------------------"
-    echo "|  Matrix size $matrix_size  |"
-    echo "-------------------------------"
+for pow in $(seq 12 14); do
 
-    for iteracion in "${iteraciones[@]}"
-    do
-        echo "-------------------------------"
-        echo "| Iteracion $iteracion  |"
-        echo "-------------------------------"
-	./gs_openmp $matrix_size
+    ms=$((2 ** ${pow}))
+    nt=2
+    mt=57
 
+    while [ ${nt} -lt ${mt} ]; do
+        echo "n=${ms}, n_threads=${nt}"
+
+        for iter in $(seq 1 5); do
+            times=$(./gs_openmp ${ms} ${nt})
+            echo " " $times ", iter="$iter
+        done
+
+        nt=$((${nt} + 2))
     done
+
+    echo && echo && echo
 done
