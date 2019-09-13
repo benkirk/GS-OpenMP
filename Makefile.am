@@ -1,7 +1,6 @@
 SUBDIRS =
 
 AM_LDFLAGS =
-LIBS       =
 
 
 bin_PROGRAMS =
@@ -13,7 +12,6 @@ gs_seq_CFLAGS   = -O2
 
 gs_openmp_SOURCES = gs_openmp.c
 gs_openmp_CFLAGS  = -O2 $(OPENMP_CFLAGS)
-gs_openmp_LDFLAGS = -lm
 
 DISTCLEANFILES = *~ speedup_N*.pdf
 

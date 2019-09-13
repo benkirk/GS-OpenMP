@@ -19,6 +19,9 @@ AM_SILENT_RULES(yes)
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CC_STDC
+AC_SEARCH_LIBS([ceil], [m], [], [AC_MSG_ERROR([unable to find the ceil() function]) ])
+
+
 AC_PROG_FC
 AC_FC_LIBRARY_LDFLAGS
 AC_FC_WRAPPERS
