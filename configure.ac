@@ -11,9 +11,8 @@ AC_CONFIG_HEADERS([openmp_config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects color-tests 1.11])
-# use silent rules - automake 1.11
-AM_SILENT_RULES(yes)
+AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects color-tests])
+#AM_SILENT_RULES(yes)
 
 # Checks for programs.
 AC_PROG_CXX
@@ -37,6 +36,9 @@ AX_OPENMP
 AC_SUBST(OPENMP_CFLAGS)
 AC_LANG_POP([C])
 
+
+
+#---------------------------------------------------
 # optional packages
 enableeigensparse=yes
 CONFIGURE_EIGEN(3.1.2,no)

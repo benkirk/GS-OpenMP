@@ -13,6 +13,18 @@ gs_seq_CFLAGS   = -O2
 gs_openmp_SOURCES = gs_openmp.c
 gs_openmp_CFLAGS  = -O2 $(OPENMP_CFLAGS)
 
+
+# eigen-only sources
+if HAVE_EIGEN
+
+bin_PROGRAMS += lu
+
+lu_SOURCES = lu.C
+lu_CXXFLAGS = $(EIGEN_INCLUDE) $(OPENMP_CXXFLAGS)
+
+endif
+
+
 DISTCLEANFILES = *~ speedup_N*.pdf
 
 
