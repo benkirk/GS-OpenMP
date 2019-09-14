@@ -37,6 +37,12 @@ AX_OPENMP
 AC_SUBST(OPENMP_CFLAGS)
 AC_LANG_POP([C])
 
+# optional packages
+enableeigensparse=yes
+CONFIGURE_EIGEN(3.1.2,no)
+#AC_CONFIG_FILES([contrib/eigen/eigen/Makefile])
+AM_CONDITIONAL(HAVE_EIGEN, test x$enableeigen = xyes)
+
 
 # Checks for MPI features
 #AC_CHECK_FUNC([MPI_Win_create], [mpi_win_create=true])

@@ -22,3 +22,4 @@ config.status
 *.o
 openmp_config.h
 stamp-h1
+*.dSYM/
