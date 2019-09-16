@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <omp.h>
+#include <Eigen/Core>
 #include <Eigen/LU>
 
 
@@ -16,23 +17,23 @@ int main (int argc, char **argv)
   const unsigned int N  = (argc == 1) ? 10 : std::atoi(argv[1]);
   const unsigned int MT = (argc != 3) ?  1 : std::atoi(argv[2]);
 
+  Eigen::setNbThreads(MT);
+
   std::cout << "max_threads: " << MT << std::endl;
 
   //std::cout << "N, MT=" << N << ", " << MT << std::endl;
 
-  using namespace Eigen;
-
   const double t_tot_start = omp_get_wtime();
 
-  MatrixXd A = MatrixXd::Random(N,N);
-  MatrixXd B = MatrixXd::Random(N,2);
+  Eigen::MatrixXd A = Eigen::MatrixXd::Random(N,N);
+  Eigen::MatrixXd B = Eigen::MatrixXd::Random(N,2);
 
   //std::cout << "Here is the invertible matrix A:" << std::endl << A << std::endl;
   //std::cout << "Here is the matrix B:" << std::endl << B << std::endl;
 
   const double t_ops_start = omp_get_wtime();
 
-  MatrixXd X = A.lu().solve(B);
+  Eigen::MatrixXd X = A.lu().solve(B);
 
   const double t_end = omp_get_wtime();
 
