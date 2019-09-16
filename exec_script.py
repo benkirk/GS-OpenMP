@@ -19,7 +19,7 @@ ops_time = []
 def run_gs(matsize, nt=1):
 
     commands = []
-    commands.append('./gs_openmp {} {}'.format(matsize, nt))
+    commands.append('./lu {} {}'.format(matsize, nt))
 
 
 

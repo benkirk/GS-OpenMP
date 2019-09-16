@@ -17,10 +17,16 @@ gs_openmp_CFLAGS  = -O2 $(OPENMP_CFLAGS)
 # eigen-only sources
 if HAVE_EIGEN
 
-bin_PROGRAMS += lu
+bin_PROGRAMS += lu ldlt matprod
 
 lu_SOURCES = lu.C
 lu_CXXFLAGS = $(EIGEN_INCLUDE) $(OPENMP_CXXFLAGS)
+
+ldlt_SOURCES = ldlt.C
+ldlt_CXXFLAGS = $(EIGEN_INCLUDE) $(OPENMP_CXXFLAGS)
+
+matprod_SOURCES = matprod.C
+matprod_CXXFLAGS = $(EIGEN_INCLUDE) $(OPENMP_CXXFLAGS)
 
 endif
 
