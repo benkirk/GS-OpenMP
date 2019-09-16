@@ -24,3 +24,5 @@ openmp_config.h
 stamp-h1
 *.dSYM/
 lu
+ldlt
+matprod

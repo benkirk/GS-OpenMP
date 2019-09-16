@@ -16,10 +16,10 @@ ops_time = []
 
 
 ##############################################################
-def run_gs(matsize, nt=1):
+def run_tool(tool, matsize, nt=1):
 
     commands = []
-    commands.append('./lu {} {}'.format(matsize, nt))
+    commands.append('./{} {} {}'.format(tool, matsize, nt))
 
 
 
@@ -90,60 +90,62 @@ def run_gs(matsize, nt=1):
 ##############################################################
 if __name__ == "__main__":
 
+    tools = [ 'matprod', 'lu', 'ldlt', 'gs_openmp' ]
 
-    for pow in range(12,15):
+    for tool in tools:
+        for pow in range(12,15):
 
-        n_threads = []
-        total_time = []
-        ops_time = []
-        sp1=[]
-        sp2=[]
+            n_threads = []
+            total_time = []
+            ops_time = []
+            sp1=[]
+            sp2=[]
 
-        matsize = 2**pow
-        print('N = 2^{} = {}'.format(pow,matsize))
+            matsize = 2**pow
+            print('N = 2^{} = {}'.format(pow,matsize))
 
-        vals = run_gs(matsize, 1)
-        n_threads.append(vals[0])
-        total_time.append(vals[1])
-        ops_time.append(vals[2])
-
-        nt=2
-        mt=56
-        while nt <= mt:
-            vals = run_gs(matsize, nt)
+            vals = run_tool(tool,matsize, 1)
             n_threads.append(vals[0])
             total_time.append(vals[1])
             ops_time.append(vals[2])
-            nt += 2
+
+            nt=2
+            mt=56
+            while nt <= mt:
+                vals = run_tool(tool,matsize, nt)
+                n_threads.append(vals[0])
+                total_time.append(vals[1])
+                ops_time.append(vals[2])
+                nt += 2
 
 
 
-        print('*'*80)
-        print('*'*80)
+            print('*'*80)
+            print('*'*80)
 
-        for s in total_time: sp1.append(total_time[0]/s)
-        for s in ops_time:   sp2.append(ops_time[0]/s)
+            for s in total_time: sp1.append(total_time[0]/s)
+            for s in ops_time:   sp2.append(ops_time[0]/s)
 
-        plt.clf()
-        plt.title('Gauss-Seidel OpenMP Solve, N={} Matrix'.format(matsize))
-        plt.grid(True,axis='both',color='grey',linestyle=':', linewidth=0.5)
-        plt.plot(n_threads, n_threads, linewidth=3, color='black')
-        plt.plot(n_threads, sp1, '--', linewidth=2, color='red')
-        plt.plot(n_threads, sp2,       linewidth=3, color='red')
-        plt.xlabel('# threads')
-        plt.ylabel('Speedup', color='red')
-        plt.xlim([0, mt])
-        plt.ylim([0, mt])
+            plt.clf()
+            plt.title('{} OpenMP Speedup, N={} Matrix'.format(tool, matsize))
+            plt.grid(True,axis='both',color='grey',linestyle=':', linewidth=0.5)
+            plt.plot(n_threads, n_threads, linewidth=3, color='black')
+            plt.plot(n_threads, sp1, '--', linewidth=2, color='red')
+            plt.plot(n_threads, sp2,       linewidth=3, color='red')
+            plt.xlabel('# threads')
+            plt.ylabel('Speedup', color='red')
+            plt.xlim([0, mt])
+            plt.ylim([0, mt])
 
 
-        ax_y2 = plt.twinx()
-        ax_y2.plot(n_threads, total_time, '--', linewidth=1, color='grey')
-        ax_y2.plot(n_threads, ops_time,         linewidth=2, color='grey')
-        ax_y2.set_ylabel('Runtime (sec)', color='grey')
-        ax_y2.set_yscale('log')
-        ax_y2.set_ylim([None, None])
+            ax_y2 = plt.twinx()
+            ax_y2.plot(n_threads, total_time, '--', linewidth=1, color='grey')
+            ax_y2.plot(n_threads, ops_time,         linewidth=2, color='grey')
+            ax_y2.set_ylabel('Runtime (sec)', color='grey')
+            ax_y2.set_yscale('log')
+            ax_y2.set_ylim([None, None])
 
-        plt.savefig('speedup_N{}.pdf'.format(matsize))
+            plt.savefig('speedup_{}_N{}.pdf'.format(tool, matsize))
         #plt.show()
 
 
