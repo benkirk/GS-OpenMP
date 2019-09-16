@@ -12,7 +12,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects color-tests])
-#AM_SILENT_RULES(yes)
+AM_SILENT_RULES(yes)
 
 # Checks for programs.
 AC_PROG_CXX
