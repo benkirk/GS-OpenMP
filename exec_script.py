@@ -1,18 +1,63 @@
 #!/usr/bin/env python3
 
+#SBATCH --job-name=openmp_scale     # Job name
+#SBATCH --nodes=1                   # Use one node
+#SBATCH --exclusive
+#SBATCH --time=04:00:00             # Time limit hrs:min:sec
+
+import os
 import subprocess
 import datetime as dt
 import time
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from collections import defaultdict, deque
 
 
 
+matplotlib.use('PDF')
+plt.ioff()
+
 n_threads = []
 total_time = []
 ops_time = []
+
+
+
+##############################################################
+def slurm_header():
+    now = dt.datetime.now()
+    print(" " + 79*"-")
+    print("| Started:       {}".format(now.strftime("%Y-%m-%d %H:%M:%S")))
+    print("| Case name:     {}".format(os.environ.get('SLURM_JOB_NAME')))
+    print("| Job ID:        {}".format(os.environ.get('SLURM_JOBID')))
+    print("| Nodes:         {}".format(os.environ.get('SLURM_JOB_NODELIST')))
+    print("| Working Dir:   {}".format(os.environ.get('SLURM_SUBMIT_DIR')))
+    print("| # of Procs:    {}".format(os.environ.get('SLURM_NPROCS')))
+    print("| # of Nodes:    {}".format(os.environ.get('SLURM_NNODES')))
+    print("| # Tasks/Node:  {}".format(os.environ.get('SLURM_TASKS_PER_NODE')))
+    print("|")
+    print("| SLURM_JOB_CPUS_PER_NODE={}".format(os.environ.get('SLURM_JOB_CPUS_PER_NODE')))
+
+    # print("| SLURM_ARRAY_TASK_ID={}".format(os.environ.get('SLURM_ARRAY_TASK_ID')))
+    # print("| SLURM_ARRAY_TASK_COUNT={}".format(os.environ.get('SLURM_ARRAY_TASK_COUNT')))
+    # print("| SLURM_ARRAY_TASK_MIN={}".format(os.environ.get('SLURM_ARRAY_TASK_MIN')))
+    # print("| SLURM_ARRAY_TASK_MAX={}".format(os.environ.get('SLURM_ARRAY_TASK_MAX')))
+    print(" " + 79*"-")
+    return
+
+
+
+##############################################################
+def slurm_footer():
+    now = dt.datetime.now()
+    print(" " + 79*"-")
+    print("| Finished:      {}".format(now.strftime("%Y-%m-%d %H:%M:%S")))
+    print(" " + 79*"-")
+    return
+
 
 
 ##############################################################
@@ -90,11 +135,27 @@ def run_tool(tool, matsize, nt=1):
 ##############################################################
 if __name__ == "__main__":
 
+    prefix     = ''
+    job_name   = os.environ.get('SLURM_JOB_NAME', None)
+    job_id     = os.environ.get('SLURM_JOBID',    None)
+    maxthreads = int(os.environ.get('SLURM_JOB_CPUS_PER_NODE', 56))
 
-    f=open("results.csv", "w+")
+    if job_name: slurm_header()
+    if job_id:
+        try:
+            prefix='out-{}/'.format(job_id)
+            os.mkdir(prefix)
+        except:
+            pass
+
+
+    print('Running on maxthreads={}'.format(maxthreads))
+
+    f=open(prefix + 'results.csv', "w+")
     f.write('NT, Total, Ops, s(Tot), s(Ops)\n')
 
-    tools = [ 'matprod-r4', 'matprod-r8', 'lu', 'ldlt', 'gs_openmp' ]
+    #tools = [ 'matprod-r4', 'matprod-r8', 'lu', 'ldlt', 'gs_openmp' ]
+    tools = [ 'matprod-r4', 'matprod-r8', 'lu' ]
 
     for tool in tools:
 
@@ -109,16 +170,15 @@ if __name__ == "__main__":
             sp2=[]
 
             matsize = 2**pow
-            print('N = 2^{} = {}'.format(pow,matsize))
+            print('N=2^{}={}'.format(pow,matsize))
 
             f.flush()
-            f.write('# {}, 2^{} = {}\n'.format(tool,pow,matsize))
+            f.write('# {}, N=2^{}={}\n'.format(tool,pow,matsize))
 
 
             nt=1
-            mt=56
             inc=2
-            while nt <= mt:
+            while nt <= maxthreads:
                 vals = run_tool(tool,matsize, nt)
                 n_threads.append(vals[0])
                 total_time.append(vals[1])
@@ -145,8 +205,8 @@ if __name__ == "__main__":
             plt.plot(n_threads, sp2,       linewidth=3, color='red')
             plt.xlabel('# threads')
             plt.ylabel('Speedup', color='red')
-            plt.xlim([0, mt])
-            plt.ylim([0, mt])
+            plt.xlim([0, maxthreads])
+            plt.ylim([0, maxthreads])
 
 
             ax_y2 = plt.twinx()
@@ -158,10 +218,10 @@ if __name__ == "__main__":
             ymax=10**np.ceil (np.log10(np.amax(total_time)))
             ax_y2.set_ylim([ymin, ymax])
 
-            plt.savefig('speedup_{}_N{}.pdf'.format(tool, matsize))
+            plt.savefig(prefix + 'speedup_{}_N{}.pdf'.format(tool, matsize))
         #plt.show()
 
     f.close()
-    print('Bye!')
+    if job_name: slurm_footer()
 
     exit

@@ -36,3 +36,6 @@ endif
 
 
 DISTCLEANFILES = *~ speedup_*_N*.pdf results.csv
+
+cleanup:
+	rm -rf slurm-*.out out-*/
