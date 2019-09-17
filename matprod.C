@@ -4,15 +4,20 @@
 #ifdef HAVE_EIGEN
 
 
+#ifndef DATATYPE
+#  warning("Undefined DATATYPE, defaulting to double")
+#  define DATATYPE double
+#endif
+
 #include <iostream>
 #include <omp.h>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
 
-
 int main (int argc, char **argv)
 {
+  typedef Eigen::Matrix<DATATYPE, Eigen::Dynamic, Eigen::Dynamic> Matrix;
 
   const unsigned int N  = (argc == 1) ? 10 : std::atoi(argv[1]);
   const unsigned int MT = (argc != 3) ?  1 : std::atoi(argv[2]);
@@ -25,11 +30,11 @@ int main (int argc, char **argv)
 
   const double t_tot_start = omp_get_wtime();
 
-  Eigen::MatrixXd A = Eigen::MatrixXd::Random(N,N);
+  Matrix A = Matrix::Random(N,N);
 
   const double t_ops_start = omp_get_wtime();
 
-  Eigen::MatrixXd A2 = A*A;
+  Matrix A2 = A*A;
 
   const double t_end = omp_get_wtime();
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import subprocess
 import datetime as dt
@@ -90,7 +90,7 @@ def run_tool(tool, matsize, nt=1):
 ##############################################################
 if __name__ == "__main__":
 
-    tools = [ 'matprod', 'lu', 'ldlt', 'gs_openmp' ]
+    tools = [ 'matprod-r4', 'matprod-r8', 'lu', 'ldlt', 'gs_openmp' ]
 
     for tool in tools:
         for pow in range(12,15):
@@ -143,7 +143,9 @@ if __name__ == "__main__":
             ax_y2.plot(n_threads, ops_time,         linewidth=2, color='grey')
             ax_y2.set_ylabel('Runtime (sec)', color='grey')
             ax_y2.set_yscale('log')
-            ax_y2.set_ylim([None, None])
+            ymin=10**np.floor(np.log10(np.amin(ops_time)))
+            ymax=10**np.ceil (np.log10(np.amax(total_time)))
+            ax_y2.set_ylim([ymin, ymax])
 
             plt.savefig('speedup_{}_N{}.pdf'.format(tool, matsize))
         #plt.show()
