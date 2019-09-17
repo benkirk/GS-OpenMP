@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
 
     f=open("results.csv", "w+")
-    f.write('NT, Total, Ops\n')
+    f.write('NT, Total, Ops, s(Tot), s(Ops)\n')
 
     tools = [ 'matprod-r4', 'matprod-r8', 'lu', 'ldlt', 'gs_openmp' ]
 
@@ -123,8 +123,10 @@ if __name__ == "__main__":
                 n_threads.append(vals[0])
                 total_time.append(vals[1])
                 ops_time.append(vals[2])
-                f.write('{}, \t{:.5f}, \t{:.5f}\n'.format(vals[0], vals[1], vals[2]))
-                inc = 2 if nt<=8 else 4
+                f.write('{}, \t{:.5f}, \t{:.5f}, \t{:.2f}, \t{:.2f}\n'.format(vals[0], vals[1], vals[2],
+                                                                              total_time[0]/vals[1],
+                                                                              ops_time[0]/vals[2]))
+                inc = 2 if nt<=10 else 4
                 nt += 1 if nt==1 else inc
 
 
