@@ -67,18 +67,18 @@ def run_tool(tool, matsize, nt=1):
 
 
             rc = process.poll()
-        print('{}, {}'.format(tt,ot))
+        print('{:.3f}, {:.3f}'.format(tt,ot))
 
         #print('-'*80)
         #print('')
 
 
     print('='*80)
-    print('average runtime, nt={}, tot={}, ops={}'.format(nt,
-                                                          np.mean(tot_time_t),
-                                                          np.mean(ops_time_t)))
-    print('variance, tot={}, ops={}'.format(np.var(tot_time_t),
-                                            np.var(ops_time_t)))
+    print('average runtime, nt={}, tot={:.3f}, ops={:.3f}'.format(nt,
+                                                                  np.mean(tot_time_t),
+                                                                  np.mean(ops_time_t)))
+    print('variance, tot={:.3f}, ops={:.3f}'.format(np.var(tot_time_t),
+                                                    np.var(ops_time_t)))
     print('='*80)
 
     return (nt, np.mean(tot_time_t), np.mean(ops_time_t))
@@ -90,10 +90,17 @@ def run_tool(tool, matsize, nt=1):
 ##############################################################
 if __name__ == "__main__":
 
+
+    f=open("results.csv", "w+")
+    f.write('NT, Total, Ops\n')
+
     tools = [ 'matprod-r4', 'matprod-r8', 'lu', 'ldlt', 'gs_openmp' ]
 
     for tool in tools:
+
+
         for pow in range(12,15):
+
 
             n_threads = []
             total_time = []
@@ -104,19 +111,21 @@ if __name__ == "__main__":
             matsize = 2**pow
             print('N = 2^{} = {}'.format(pow,matsize))
 
-            vals = run_tool(tool,matsize, 1)
-            n_threads.append(vals[0])
-            total_time.append(vals[1])
-            ops_time.append(vals[2])
+            f.flush()
+            f.write('# {}, 2^{} = {}\n'.format(tool,pow,matsize))
 
-            nt=2
+
+            nt=1
             mt=56
+            inc=2
             while nt <= mt:
                 vals = run_tool(tool,matsize, nt)
                 n_threads.append(vals[0])
                 total_time.append(vals[1])
                 ops_time.append(vals[2])
-                nt += 2
+                f.write('{}, \t{:.5f}, \t{:.5f}\n'.format(vals[0], vals[1], vals[2]))
+                inc = 2 if nt<=8 else 4
+                nt += 1 if nt==1 else inc
 
 
 
@@ -150,7 +159,7 @@ if __name__ == "__main__":
             plt.savefig('speedup_{}_N{}.pdf'.format(tool, matsize))
         #plt.show()
 
-
+    f.close()
     print('Bye!')
 
     exit

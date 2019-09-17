@@ -35,4 +35,4 @@ endif
 #################################################
 
 
-DISTCLEANFILES = *~ speedup_*_N*.pdf
+DISTCLEANFILES = *~ speedup_*_N*.pdf results.csv
