@@ -34,6 +34,7 @@ endif
 # end Eigen-only sources
 #################################################
 
+EXTRA_DIST = contrib
 
 DISTCLEANFILES = *~ speedup_*_N*.pdf results.csv
 

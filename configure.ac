@@ -12,7 +12,7 @@ AC_CONFIG_HEADERS([openmp_config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
-AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects color-tests])
+AM_INIT_AUTOMAKE([dist-xz dist-bzip2 tar-ustar color-tests serial-tests 1.12])
 AM_SILENT_RULES(yes)
 
 srcdir=`dirname $0`
