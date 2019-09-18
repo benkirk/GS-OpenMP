@@ -3,7 +3,7 @@
 #SBATCH --job-name=openmp_scale     # Job name
 #SBATCH --nodes=1                   # Use one node
 #SBATCH --exclusive
-#SBATCH --time=04:00:00             # Time limit hrs:min:sec
+#SBATCH --time=08:00:00             # Time limit hrs:min:sec
 
 import os
 import subprocess

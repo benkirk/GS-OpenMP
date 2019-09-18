@@ -1,5 +1,6 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
+# Infer the source directory as the path to the ./configure script
 
 AC_PREREQ([2.69])
 AC_INIT([omp_scaling], [0.0.1], [benjamin.kirk@nasa.gov])
@@ -13,6 +14,9 @@ AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects color-tests])
 AM_SILENT_RULES(yes)
+
+srcdir=`dirname $0`
+top_srcdir=`dirname $0`
 
 # Checks for programs.
 AC_PROG_CXX
