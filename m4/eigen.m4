@@ -84,8 +84,9 @@ AC_DEFUN([CONFIGURE_EIGEN],
                 [test -d $top_srcdir/contrib/eigen/eigen], [AC_MSG_RESULT([<<< external Eigen header files not found, using Eigen from ./contrib >>>])
                                                             EIGEN_INC=$top_srcdir/contrib/eigen/eigen
                                                             EIGEN_INCLUDE="-I\$(top_srcdir)/contrib/eigen/eigen"
-                                                            install_internal_eigen=yes],
-                [enableeigen=no])
+                                                            install_internal_eigen=no],
+                [echo "cannot locate $top_srcdir/contrib/eigen/eigen ?!"
+                 enableeigen=no] )
 
           dnl OK, we have a usable eigen path, make sure the headers we want are good.
           AS_IF([test "x$enableeigen" = "xyes"],
