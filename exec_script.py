@@ -205,8 +205,8 @@ if __name__ == "__main__":
             plt.plot(n_threads, sp2,       linewidth=3, color='red')
             plt.xlabel('# threads')
             plt.ylabel('Speedup', color='red')
-            plt.xlim([0, maxthreads])
-            plt.ylim([0, maxthreads])
+            plt.xlim([1, maxthreads])
+            plt.ylim([1, maxthreads])
 
 
             ax_y2 = plt.twinx()
