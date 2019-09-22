@@ -36,10 +36,14 @@ int main (int argc, char **argv)
 
   Matrix A2 = A*A;
 
-  const double t_end = omp_get_wtime();
+  const double
+    t_end = omp_get_wtime(),
+    FLOP  = static_cast<double>( N*N*(2*N - 1) ),
+    FLOPS = FLOP / (t_end - t_ops_start);
 
   std::cout << "Total time: "      << (t_end - t_tot_start) << std::endl
-            << "Operations time: " << (t_end - t_ops_start) << std::endl;
+            << "Operations time: " << (t_end - t_ops_start) << std::endl
+            << "GFLOPS: " << FLOPS / 1.e9 << std::endl;
 
  return 0;
 }
