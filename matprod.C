@@ -22,6 +22,7 @@ int main (int argc, char **argv)
   const unsigned int N  = (argc == 1) ? 10 : std::atoi(argv[1]);
   const unsigned int MT = (argc != 3) ?  1 : std::atoi(argv[2]);
 
+  omp_set_num_threads(MT);
   Eigen::setNbThreads(MT);
 
   std::cout << "max_threads: " << MT << std::endl;
