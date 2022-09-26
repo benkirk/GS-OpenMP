@@ -3,7 +3,7 @@
 # Infer the source directory as the path to the ./configure script
 
 AC_PREREQ([2.69])
-AC_INIT([omp_scaling], [0.0.1], [benjamin.kirk@nasa.gov])
+AC_INIT([omp_scaling],[0.0.1],[benjamin.kirk@nasa.gov])
 AC_MSG_RESULT(---------------------------------------------)
 AC_MSG_RESULT(-------- Configuring OpenMP Scaling ---------)
 AC_MSG_RESULT(---------------------------------------------)
@@ -21,7 +21,7 @@ top_srcdir=`dirname $0`
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_CC_STDC
+AC_REQUIRE(AC_PROG_CC)
 AC_SEARCH_LIBS([ceil], [m], [], [AC_MSG_ERROR([unable to find the ceil() function]) ])
 
 
