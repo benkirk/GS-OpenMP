@@ -146,7 +146,7 @@ AC_DEFUN([CONFIGURE_EIGEN],
                   dnl if we survived, we really have Eigen
                   AS_IF([test "x$enableeigen" = "xyes"],         [HAVE_EIGEN=1
                                                                   AC_DEFINE(HAVE_EIGEN, 1, [Flag indicating whether the library will be compiled with Eigen support])
-                                                                  AC_MSG_RESULT(<<< Configuring library with Eigen support >>>)],
+                                                                  AC_MSG_RESULT(<<< Configuring with Eigen support >>>)],
                         [test "x$is_package_required" = "xyes"], [AC_MSG_ERROR([Your EIGEN version ($EIGEN_INC) does not meet the minimum versioning
                                                                                 requirements ($min_eigen_version).  Please use --with-eigen-include to
                                                                                 specify the location of an updated installation.])])

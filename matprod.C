@@ -1,4 +1,4 @@
-#include "openmp_config.h"
+#include "programming_paradigms_config.h"
 
 #ifdef HAVE_OPENMP
 #ifdef HAVE_EIGEN

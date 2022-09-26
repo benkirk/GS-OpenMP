@@ -20,7 +20,7 @@ Makefile
 config.log
 config.status
 *.o
-openmp_config.h
+programming_paradigms_config.h
 stamp-h1
 *.dSYM/
 lu

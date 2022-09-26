@@ -8,7 +8,7 @@ AC_MSG_RESULT(----------------------------------------------------)
 AC_MSG_RESULT(-------- Configuring Programming Paradigms ---------)
 AC_MSG_RESULT(----------------------------------------------------)
 AC_CONFIG_SRCDIR([gs_openmp.c])
-AC_CONFIG_HEADERS([openmp_config.h])
+AC_CONFIG_HEADERS([programming_paradigms_config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -41,13 +41,15 @@ AC_SUBST(OPENMP_CFLAGS)
 AC_LANG_POP([C])
 
 
-
 #---------------------------------------------------
 # optional packages
 enableeigensparse=yes
 CONFIGURE_EIGEN(3.1.2,no)
 #AC_CONFIG_FILES([contrib/eigen/eigen/Makefile])
 AM_CONDITIONAL(HAVE_EIGEN, test x$enableeigen = xyes)
+
+CONFIGURE_TBB
+AM_CONDITIONAL(HAVE_TBB, test x$enabletbb = xyes)
 
 
 # Checks for MPI features
@@ -66,8 +68,8 @@ AM_CONDITIONAL(HAVE_EIGEN, test x$enableeigen = xyes)
 AC_CONFIG_FILES([Makefile
                  ])
 AC_OUTPUT
-AC_MSG_RESULT(---------------------------------------------)
-AC_MSG_RESULT(------ Done Configuring OpenMP Scaling ------)
-AC_MSG_RESULT(---------------------------------------------)
+AC_MSG_RESULT(---------------------------------------------------------)
+AC_MSG_RESULT(-------- Done Configuring Programming Paradigms ---------)
+AC_MSG_RESULT(---------------------------------------------------------)
 
-#AX_SUMMARIZE_CONFIG
+AX_SUMMARIZE_CONFIG

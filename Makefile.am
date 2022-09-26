@@ -1,9 +1,9 @@
 #SUBDIRS =
 
 #AM_LDFLAGS =
-AM_CPPFLAGS =
-AM_CFLAGS   = -O2 $(OPENMP_CFLAGS)
-AM_CXXFLAGS = -O2 $(OPENMP_CFLAGS)
+AM_CPPFLAGS = $(TBB_INCLUDE)
+AM_CFLAGS   = -O3 $(OPENMP_CFLAGS)
+AM_CXXFLAGS = -O3 $(OPENMP_CXXFLAGS)
 
 bin_PROGRAMS =
 
@@ -42,6 +42,14 @@ matprod_r8_CPPFLAGS = -DDATATYPE=double $(EIGEN_INCLUDE)
 endif
 # end Eigen-only sources
 #################################################
+
+
+bin_PROGRAMS += parallel_stl
+
+parallel_stl_SOURCES = parallel_stl.C
+parallel_stl_LDADD = $(TBB_LIBRARY)
+
+
 
 EXTRA_DIST = contrib
 
