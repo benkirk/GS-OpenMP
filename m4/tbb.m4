@@ -33,7 +33,7 @@ AC_DEFUN([CONFIGURE_TBB],
 
           AS_IF([test -r $TBB_INCLUDE_PATH/tbb/tbb.h],
                 [
-                  TBB_LIBRARY="-L$TBB_LIBS -ltbb -ltbbmalloc"
+                  TBB_LIBRARY="-L$TBB_LIBS -ltbb"
                   TBB_INCLUDE=-I$TBB_INCLUDE_PATH
 
                   dnl Add rpath flags to the link line.
