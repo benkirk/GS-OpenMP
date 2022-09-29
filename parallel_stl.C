@@ -1,7 +1,9 @@
+#ifdef HAVE_CONFIG_H
+#  include "programming_paradigms_config.h"
+#endif
 
 // https://www.modernescpp.com/index.php/performance-of-the-parallel-stl-algorithmn
 // parallelSTLPerformance.cpp
-#include "programming_paradigms_config.h"
 #include <execution>
 #include <algorithm>
 #include <cmath>
