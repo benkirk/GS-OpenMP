@@ -44,10 +44,13 @@ endif
 #################################################
 
 
-bin_PROGRAMS += parallel_stl
+bin_PROGRAMS += parallel_stl_transform parallel_stl_sort
 
-parallel_stl_SOURCES = parallel_stl.C
-parallel_stl_LDADD = $(TBB_LIBRARY)
+parallel_stl_transform_SOURCES = parallel_stl_transform.C
+parallel_stl_transform_LDADD = $(TBB_LIBRARY)
+
+parallel_stl_sort_SOURCES = parallel_stl_sort.C
+parallel_stl_sort_LDADD = $(TBB_LIBRARY)
 
 
 

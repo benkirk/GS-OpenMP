@@ -23,11 +23,12 @@ echo
 echo Package version............... : $PACKAGE-$VERSION
 echo
 echo C++ compiler.................. : $CXX
-echo CXXFLAGS.......................: $CXXFLAGS
+echo CXXFLAGS...................... : $CXXFLAGS
+echo CPPFLAGS...................... : $CPPFLAGS
 echo C compiler.................... : $CC
-echo CFLAGS.........................: $CFLAGS
+echo CFLAGS........................ : $CFLAGS
 echo Fortran compiler.............. : $FC
-echo FCFLAGS........................: $FCFLAGS
+echo FCFLAGS....................... : $FCFLAGS
 #echo Fortran 77 compiler........... : $F77
 #echo libmesh dir................... : $LIBMESH_PREFIX
 #echo libmesh-config................ : $LIBMESH_CONFIG
@@ -46,16 +47,16 @@ echo
 echo Optional Dependencies:
 
 ######################################################################################
-echo '  'eigen............................ : $enableeigen
+echo '  'eigen....................... : $enableeigen
 if test "x$enabletbb" = "xyes"; then
-  echo '      'EIGEN_INCLUDE.............. : $EIGEN_INCLUDE
+  echo '      'EIGEN_INCLUDE........... : $EIGEN_INCLUDE
 fi
 
 ######################################################################################
-echo '  'tbb.............................. : $enabletbb
+echo '  'tbb......................... : $enabletbb
 if test "x$enabletbb" = "xyes"; then
-  echo '      'TBB_INCLUDE................ : $TBB_INCLUDE
-  echo '      'TBB_LIBRARY................ : $TBB_LIBRARY
+  echo '      'TBB_INCLUDE............. : $TBB_INCLUDE
+  echo '      'TBB_LIBRARY............. : $TBB_LIBRARY
 fi
 
 echo
