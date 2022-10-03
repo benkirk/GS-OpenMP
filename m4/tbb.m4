@@ -45,7 +45,7 @@ AC_DEFUN([CONFIGURE_TBB],
           dnl a test code which uses it
           AS_IF([test "x$enabletbb" != "xno"],
                 [
-                  AC_MSG_CHECKING(for tbb::tbb_thread support)
+                  AC_MSG_CHECKING(for tbb::info::default_concurrency() support)
                   AC_LANG_PUSH([C++])
 
                   dnl Add TBB headers to CXXFLAGS, which will be used by AC_COMPILE_IFELSE.
